@@ -13,8 +13,9 @@
 #'   summary expressions as strings, e.g. `c(avgDistance = "mean(distance_meters)",
 #'   countRides = "n()")`.
 #'
-#' @return A patchwork object combining the generated ggplots, arranged with
-#'   `ncol = length(summary)`.
+#' @return A list with two elements:
+#'   - plots: a tibble with columns `summary`, `factor_1`, `factor_2`, `factor_3`, and `plot` (ggplot objects)
+#'   - combined: a patchwork object combining all plots arranged with `ncol = length(summary)`
 #'
 #' @details Uses tidy-eval helpers (`syms`) and `eval(parse(...))` to convert
 #'   provided strings to symbols/expressions for grouping and summarising.
@@ -46,14 +47,14 @@ plotSummariesByFactors = function(df, factor_cols, summary) {
       if(length(factors) == 1) {
         p = summarized %>% ggplot(aes(eval(parse(text = factors[1])),
                                          eval(parse(text = summary_col)))) + geom_col()
-        return(p)
+        return(list(plot = p, summary = summary_col, factors = factors))
       }
       if(length(factors) == 2) {
         p = summarized %>%
           ggplot(aes(x=eval(parse(text =factors[1])), y=eval(parse(text = summary_col)))) +
           geom_col(aes(fill= eval(parse(text = factors[2]))), position = "dodge") +
           labs(x=factors[1], y=summary_col, fill=factors[2])
-        return(p)
+        return(list(plot = p, summary = summary_col, factors = factors))
       }
       if(length(factors) == 3) {
         p = summarized %>%
@@ -61,12 +62,26 @@ plotSummariesByFactors = function(df, factor_cols, summary) {
           geom_col(aes(fill= eval(parse(text = factors[2]))), position = "dodge") +
           facet_wrap(~ eval(parse(text = factors[3]))) +
           labs(x=factors[1], y=summary_col, fill=factors[2])
-        return(p)
+        return(list(plot = p, summary = summary_col, factors = factors))
       }
       # summarized %>% ggplot(aes(!!factors[1], !!summary_col)) + geom_col()
     }, names(summary), summary, SIMPLIFY = FALSE)
   })
-  flat_plots = unlist(graphs, recursive = FALSE)
-  wrap_plots(flat_plots, ncol = length(summary))
+  flat_items = unlist(graphs, recursive = FALSE)
+  
+  plots_tbl = dplyr::bind_rows(lapply(flat_items, function(item) {
+    fs = unlist(item$factors)
+    tibble::tibble(
+      summary   = item$summary,
+      factor_1  = if (length(fs) >= 1) fs[1] else NA_character_,
+      factor_2  = if (length(fs) >= 2) fs[2] else NA_character_,
+      factor_3  = if (length(fs) >= 3) fs[3] else NA_character_,
+      plot      = list(item$plot)
+    )
+  }))
+  
+  combined = patchwork::wrap_plots(plots_tbl$plot, ncol = length(summary))
+  
+  return(list(plots = plots_tbl, combined = combined))
   
 }
