@@ -45,8 +45,11 @@ plotSummariesByFactors = function(df, factor_cols, summary) {
       
       factors = unlist(factors)
       if(length(factors) == 1) {
-        p = summarized %>% ggplot(aes(eval(parse(text = factors[1])),
-                                         eval(parse(text = summary_col)))) + geom_col()
+        p = summarized %>%
+          ggplot(aes(eval(parse(text = factors[1])),
+                     eval(parse(text = summary_col)))) +
+          geom_col() +
+          labs(x=factors[1], y=summary_col)
         return(list(plot = p, summary = summary_col, factors = factors))
       }
       if(length(factors) == 2) {
