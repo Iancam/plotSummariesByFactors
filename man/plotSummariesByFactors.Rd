@@ -10,7 +10,7 @@ plotSummariesByFactors(df, factor_cols, summary)
 \item{df}{data.frame. Source data containing grouping and measure columns.}
 
 \item{factor_cols}{list of character vectors (possibly nested) where each element
-is a character vector of length 1 or 2 naming grouping columns, e.g.
+is a character vector of length 1, 2, or 3 naming grouping columns, e.g.
 \code{list(c("day_of_week"), c("month","member_casual"))}.}
 
 \item{summary}{named character vector mapping output column names to dplyr
@@ -25,10 +25,11 @@ A list with two elements:
 }
 \description{
 Computes grouped summaries over provided factor combinations and renders
-bar charts for each summary metric. Supports one or two grouping factors:
+bar charts for each summary metric. Supports one, two, or three grouping factors:
 \itemize{
 \item 1 factor: bar chart of summary vs. factor
 \item 2 factors: dodged bar chart, fill mapped to the second factor
+\item 3 factors: facet_wrap on the third factor
 }
 }
 \details{
@@ -47,7 +48,11 @@ summary <- c(
 # factor pairs
 times <- c("day_of_week", "month")
 factors <- c("member_casual")
-factor_cols <- lapply(times, function(t) lapply(factors, function(f) c(t, f)))
+factor_cols <- lapply(times, function(t){
+  lapply(factors, function(f){
+    c(t, f)
+  })
+})
 # generate plots
-graphItAll(df, factor_cols, summary)
+plotSummariesByFactors(df, factor_cols, summary)
 }
