@@ -20,7 +20,7 @@ factor_cols <- lapply(times, function(t){
 # generate plots
 res <-plotSummariesByFactors(df, factor_cols, summary)
 res$combined # display combined plot
-res$plots # a tibble of factors, summaries, and individual plots
+res$plots # a tibble of factors, summaries, and individual plots, for use in reports
 ```
 
 The above will produce the Cartesian product of the provided factor combinations and summary metrics, resulting in timesxfactorsxsummaries, or 2x2x2=8 bar plots, each corresponding to one of the possible combinations of factors and summaries.
