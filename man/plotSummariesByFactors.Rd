@@ -40,10 +40,25 @@ chart is created and combined with \code{patchwork::wrap_plots}.
 }
 \examples{
 # summary metrics
+df <- tibble::tibble(
+  distance_meters = c(1200, 800, 1500, 900, 1100, 700),
+  ride_duration   = c(600, 540, 720, 500, 650, 480),  # seconds
+  day_of_week     = factor(
+    c("Mon","Mon","Tue","Tue","Wed","Wed"),
+    levels = c("Mon","Tue","Wed","Thu","Fri","Sat","Sun"),
+    ordered = TRUE
+  ),
+  month           = factor(
+    c("Jan","Jan","Jan","Feb","Feb","Feb"),
+    levels = month.abb,
+    ordered = TRUE
+  ),
+  member_casual   = factor(c("member","casual","member","casual","member","casual"))
+)
 summary <- c(
   avgDistance = "mean(distance_meters)",
   avgDuration = "mean(ride_duration)",
-  countRides  = "n()"
+  countRides  = "dplyr::n()"
 )
 # factor pairs
 times <- c("day_of_week", "month")

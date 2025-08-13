@@ -1,3 +1,5 @@
+
+
 #' Plot aggregated summaries across factor combinations
 #'
 #' Computes grouped summaries over provided factor combinations and renders
@@ -23,12 +25,31 @@
 #'   For each factor combination and each summary metric, a `ggplot2` column
 #'   chart is created and combined with `patchwork::wrap_plots`.
 #'
+#' @importFrom magrittr %>%
+#' @importFrom dplyr group_by summarise across all_of
+#' @importFrom ggplot2 ggplot aes geom_col facet_wrap labs 
+#' @importFrom rlang syms := .data
 #' @examples
 #' # summary metrics
+#' df <- tibble::tibble(
+#'   distance_meters = c(1200, 800, 1500, 900, 1100, 700),
+#'   ride_duration   = c(600, 540, 720, 500, 650, 480),  # seconds
+#'   day_of_week     = factor(
+#'     c("Mon","Mon","Tue","Tue","Wed","Wed"),
+#'     levels = c("Mon","Tue","Wed","Thu","Fri","Sat","Sun"),
+#'     ordered = TRUE
+#'   ),
+#'   month           = factor(
+#'     c("Jan","Jan","Jan","Feb","Feb","Feb"),
+#'     levels = month.abb,
+#'     ordered = TRUE
+#'   ),
+#'   member_casual   = factor(c("member","casual","member","casual","member","casual"))
+#')
 #' summary <- c(
 #'   avgDistance = "mean(distance_meters)",
 #'   avgDuration = "mean(ride_duration)",
-#'   countRides  = "n()"
+#'   countRides  = "dplyr::n()"
 #' )
 #' # factor pairs
 #' times <- c("day_of_week", "month")
@@ -45,30 +66,30 @@ plotSummariesByFactors = function(df, factor_cols, summary) {
   graphs = lapply(factor_cols, function(factors) {
     mapply(function(summary_col, equation) {
       summarized = df %>%
-        dplyr::group_by(!!!syms(unlist(factors))) %>%
-        dplyr::summarise(!!summary_col := eval(parse(text = equation)))
+        group_by(across(all_of(unlist(factors)))) %>%
+        summarise(!!summary_col := rlang::eval_tidy(rlang::parse_expr(equation)))
       
       factors = unlist(factors)
       if(length(factors) == 1) {
         p = summarized %>%
-          ggplot(aes(eval(parse(text = factors[1])),
-                     eval(parse(text = summary_col)))) +
+          ggplot(aes(x=.data[[factors[1]]],
+                     y=.data[[summary_col]])) +
           geom_col() +
           labs(x=factors[1], y=summary_col)
         return(list(plot = p, summary = summary_col, factors = factors))
       }
       if(length(factors) == 2) {
         p = summarized %>%
-          ggplot(aes(x=eval(parse(text =factors[1])), y=eval(parse(text = summary_col)))) +
-          geom_col(aes(fill= eval(parse(text = factors[2]))), position = "dodge") +
+          ggplot(aes(x=.data[[factors[1]]], y=.data[[summary_col]])) +
+          geom_col(aes(fill= .data[[factors[2]]]), position = "dodge") +
           labs(x=factors[1], y=summary_col, fill=factors[2])
         return(list(plot = p, summary = summary_col, factors = factors))
       }
       if(length(factors) == 3) {
         p = summarized %>%
-          ggplot(aes(x=eval(parse(text =factors[1])), y=eval(parse(text = summary_col)))) +
-          geom_col(aes(fill= eval(parse(text = factors[2]))), position = "dodge") +
-          facet_wrap(~ eval(parse(text = factors[3]))) +
+          ggplot(aes(x=.data[[factors[1]]], y=.data[[summary_col]])) +
+          geom_col(aes(fill= .data[[factors[2]]]), position = "dodge") +
+          facet_wrap(~ .data[[factors[3]]]) +
           labs(x=factors[1], y=summary_col, fill=factors[2])
         return(list(plot = p, summary = summary_col, factors = factors))
       }
@@ -93,3 +114,5 @@ plotSummariesByFactors = function(df, factor_cols, summary) {
   return(list(plots = plots_tbl, combined = combined))
   
 }
+
+

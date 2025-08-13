@@ -28,7 +28,7 @@ The above will produce the Cartesian product of the provided factor combinations
 ## Installation
 
 ```{r}
-devtools::install_github("Iancam/plotFactorsBySummaries")
+devtools::install_github("Iancam/plotSummariesByFactors")
 ```
 
 ## Dependencies

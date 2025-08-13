@@ -1,0 +1,86 @@
+---
+title: "getting-started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{getting-started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Getting Started
+
+This vignette shows how to load the bundled sample dataset and produce grouped summary plots with `plotSummariesByFactors()`.
+
+# Related Packages
+[dataExplorer](http://boxuancui.github.io/DataExplorer/) also simplifies much of the data inspection process. However, it seems to focus on prep for ML workflows. `plotSummariesByFactors` focuses on exploring relationships between variables.
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(plotSummariesByFactors)
+library(readr)
+library(comprehenr)
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+library(tibble)
+# Load data
+divvy = system.file("extdata", "divvySample.csv", package = "plotSummariesByFactors", mustWork = TRUE)
+print(divvy)
+df = read_csv(divvy)
+```
+
+```{r inspect}
+head(df)
+names(df)
+```
+
+```{r minimal}
+# Minimal example: average ride duration by day of week
+summary_vec <- c(avgDuration = "mean(ride_duration)")
+factor_cols <- list(c("day_of_week"))
+
+res <- plotSummariesByFactors(df, factor_cols, summary_vec)
+res$combined
+```
+
+```{r simple}
+# Simple example: average ride duration and distance by day of week and member type
+factor_cols = list(c("day_of_week", "member_casual"))
+summary = c(
+	avgDistance = "mean(distance_meters)",
+	avgDuration = "mean(ride_duration)",
+    countRides = "n()"
+)
+plotSummariesByFactors(df, factor_cols, summary)$combined
+```
+
+When exploring many factors combos, manually writing factor tuples can be cumbersome. `comprehenr` can be used to generate factor combinations. 
+
+```{r generating factor combinations}
+library(comprehenr)
+factors_1 = c("month", "year")
+factors_2 = c("member_casual", "rideable_type")
+summaries = c(
+	"numRides"="n()",
+	"avgDuration" = "mean(ride_duration)"
+)
+factor_tuples = to_list(for (f1 in factors_1) for (f2 in factors_2) c(f1, f2))
+plotSummariesByFactors(df, factor_tuples, summaries)$combined
+```
+
+While you can facet based on a third variable, the resulting graph can be very busy. Creating a combined plot with more than 1 factor triple would likely be too much.  
+```{r handling one off triple}
+factor_cols = list(c("month", "member_casual", "year"))
+summary = c(
+	avgDistance = "mean(distance_meters)",
+avgDuration = "mean(ride_duration)",
+    countRides = "n()"
+)
+plotSummariesByFactors(df, factor_cols, summary)$combined
+```
