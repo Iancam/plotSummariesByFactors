@@ -147,10 +147,10 @@ df %>%
 	ggplot(aes(x=member_casual, y=avgDuration)) + geom_col()
 ```
 
-The resultant graph puts membership type on the x-axis and average trip duration on the y. Then you ask, are there seasonal trends? To answer, you have to translate the question into the domain of the data: One candidate is, What is the relationship between the average duration, per membership type, per month? Once expressed in terms of your data, you again write code, which looks similar but not exactly the same as before.
+The resultant graph puts membership type on the x-axis and average trip duration on the y. Then you ask, are there seasonal trends? To answer, you have to translate the question into the domain of the data: One candidate is, What is the relationship between the average duration, per membership type, per month? Once expressed in terms of your data, you again write code, which looks similar but not exactly the same as before. This time you might "dodge" the bars by membership type, creating a grouped bar plot, or facet by membership type, creating a faceted set of bar plots.
 
 Answering each of these questions in isolation takes a lot of steps, but if you step back, a pattern emerges. Each question can be expressed as a relationship between ($factor_1, $factor_2, ... $factor_k) and $summary_statistic_j. For k=1, k=2, and k=3, we can answer with a bar plot, a grouped bar plot, and a faceted set of grouped bar plots, respectively.
 
-When the question space is formalized in this way, you no longer have to specify each question in isolation; you can generate a set of interesting questions by taking the Cartesian product of factors and summary statistics. Rather than dealing with the language of graphs, group_bys, and summaries, you can focus on the language of exploring the question space: generating and filtering questions and evaluating graphs for patterns.
+When the question space is formalized in this way, you no longer have to specify each question in isolation; you can generate a set of interesting questions by taking the Cartesian product of factors and summary statistics. Rather than dealing with the language of graphs, group_bys, and summaries, you can focus on the variables specific to the question space: which factors influence which summary statistics.
 
 ## Licence: MIT

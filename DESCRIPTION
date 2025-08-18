@@ -1,6 +1,6 @@
 Package: plotSummariesByFactors
 Title: Plot Summaries By Factors
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: 
     person("Ian", "Campbell", , "ian.campbell.92@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
